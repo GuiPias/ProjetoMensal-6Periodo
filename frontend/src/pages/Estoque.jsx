@@ -3,12 +3,14 @@ import NavBar from '../components/NavBar';
 import { listarItens, criarItem, atualizarItem, excluirItem } from '../services/api';
 
 const ITEM_VAZIO = { nome: '', descricao: '', quantidade: 0 };
+const LIMITE_ESTOQUE_BAIXO = 5;
 
 function Estoque() {
   const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
   const ehMaster = usuario?.papel === 'master';
 
   const [itens, setItens] = useState([]);
+  const [busca, setBusca] = useState('');
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
@@ -16,9 +18,18 @@ function Estoque() {
   const [itemEmEdicao, setItemEmEdicao] = useState(null);
   const [formulario, setFormulario] = useState(ITEM_VAZIO);
 
+  const itensFiltrados = itens.filter((item) =>
+    item.nome.toLowerCase().includes(busca.trim().toLowerCase())
+  );
+
   function mostrarSucesso(mensagem) {
     setSucesso(mensagem);
     setTimeout(() => setSucesso(''), 3000);
+  }
+
+  function mostrarErro(mensagem) {
+    setErro(mensagem);
+    setTimeout(() => setErro(''), 4000);
   }
 
   async function carregarItens() {
@@ -27,7 +38,7 @@ function Estoque() {
       const dados = await listarItens();
       setItens(dados);
     } catch (erroRequisicao) {
-      setErro(erroRequisicao.message);
+      mostrarErro(erroRequisicao.message);
     } finally {
       setCarregando(false);
     }
@@ -70,18 +81,22 @@ function Estoque() {
       cancelarFormulario();
       await carregarItens();
     } catch (erroRequisicao) {
-      setErro(erroRequisicao.message);
+      mostrarErro(erroRequisicao.message);
     }
   }
 
-  async function removerItem(id) {
+  async function removerItem(item) {
+    if (!window.confirm(`Tem certeza que deseja excluir o item "${item.nome}"?`)) {
+      return;
+    }
+
     setErro('');
     try {
-      await excluirItem(id);
+      await excluirItem(item.id);
       mostrarSucesso('Item excluído com sucesso!');
       await carregarItens();
     } catch (erroRequisicao) {
-      setErro(erroRequisicao.message);
+      mostrarErro(erroRequisicao.message);
     }
   }
 
@@ -103,7 +118,7 @@ function Estoque() {
       });
       mostrarSucesso('Item atualizado com sucesso!');
     } catch (erroRequisicao) {
-      setErro(erroRequisicao.message);
+      mostrarErro(erroRequisicao.message);
       await carregarItens();
     }
   }
@@ -111,6 +126,7 @@ function Estoque() {
   return (
     <div>
       {sucesso && <div className="toast-sucesso">{sucesso}</div>}
+      {erro && <div className="toast-erro">{erro}</div>}
       <NavBar />
       <div className="container">
         <div className="cabecalho-pagina">
@@ -120,7 +136,13 @@ function Estoque() {
           )}
         </div>
 
-        {erro && <p className="mensagem-erro">{erro}</p>}
+        <input
+          type="text"
+          className="campo-busca"
+          placeholder="Buscar item pelo nome..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+        />
 
         {formularioAberto && (
           <form className="card" onSubmit={salvarItem}>
@@ -161,6 +183,10 @@ function Estoque() {
 
         {carregando ? (
           <p>Carregando...</p>
+        ) : itensFiltrados.length === 0 ? (
+          <p className="estado-vazio">
+            {itens.length === 0 ? 'Nenhum item cadastrado.' : 'Nenhum item encontrado para essa busca.'}
+          </p>
         ) : (
           <table className="tabela">
             <thead>
@@ -172,28 +198,35 @@ function Estoque() {
               </tr>
             </thead>
             <tbody>
-              {itens.map((item) => (
+              {itensFiltrados.map((item) => (
                 <tr key={item.id}>
                   <td>{item.nome}</td>
                   <td>{item.descricao}</td>
                   <td>
-                    {ehMaster ? (
-                      <input
-                        type="number"
-                        min="0"
-                        className="input-quantidade"
-                        value={item.quantidade}
-                        onChange={(e) => alterarQuantidadeLocal(item.id, Math.max(0, Number(e.target.value) || 0))}
-                        onBlur={(e) => salvarQuantidade(item, Math.max(0, Number(e.target.value) || 0))}
-                      />
-                    ) : (
-                      item.quantidade
-                    )}
+                    <div className="celula-quantidade">
+                      {ehMaster ? (
+                        <input
+                          type="number"
+                          min="0"
+                          className="input-quantidade"
+                          value={item.quantidade}
+                          onChange={(e) => alterarQuantidadeLocal(item.id, Math.max(0, Number(e.target.value) || 0))}
+                          onBlur={(e) => salvarQuantidade(item, Math.max(0, Number(e.target.value) || 0))}
+                        />
+                      ) : (
+                        item.quantidade
+                      )}
+                      {item.quantidade === 0 ? (
+                        <span className="badge badge-perigo">Sem estoque</span>
+                      ) : item.quantidade <= LIMITE_ESTOQUE_BAIXO ? (
+                        <span className="badge badge-alerta">Estoque baixo</span>
+                      ) : null}
+                    </div>
                   </td>
                   {ehMaster && (
                     <td>
                       <button className="btn" onClick={() => abrirEdicaoItem(item)}>Editar</button>
-                      <button className="btn btn-danger" onClick={() => removerItem(item.id)}>Excluir</button>
+                      <button className="btn btn-danger" onClick={() => removerItem(item)}>Excluir</button>
                     </td>
                   )}
                 </tr>
