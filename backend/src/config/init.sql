@@ -20,3 +20,8 @@ CREATE TABLE IF NOT EXISTS itens (
 INSERT INTO usuarios (nome, email, senha, papel)
 VALUES ('Administrador', 'admin@estoque.com', '$2a$10$CjD1D4wJqzFvh5CHvFNR3uxokr.AlprO1ZTHusG5pDGflgIqiSfEW', 'master')
 ON DUPLICATE KEY UPDATE email = email;
+
+-- Usuario comum inicial (email: comum@estoque.com / senha: comum123)
+INSERT INTO usuarios (nome, email, senha, papel)
+VALUES ('Usuario Comum', 'comum@estoque.com', '$2a$10$supIK/8nrft6e8fP7HOhkOMWVhi2RIqqC2t2HLGsFRPSLDISKNcxe', 'comum')
+ON DUPLICATE KEY UPDATE email = email;
