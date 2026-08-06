@@ -8,7 +8,7 @@ services:
       - db_data:/var/lib/mysql
       - ./backend/src/config/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "3307:3306"
+      - "3306:3306"
 
   backend:
     build: ./backend
@@ -29,7 +29,7 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: http://localhost:3001
+        VITE_API_URL: http://18.230.245.38:3001
     depends_on:
       - backend
     ports:
