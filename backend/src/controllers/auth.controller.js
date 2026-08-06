@@ -11,8 +11,8 @@ async function login(req, res) {
   }
 
   try {
-    const resultado = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
-    const usuario = resultado.rows[0];
+    const [linhas] = await pool.query('SELECT * FROM usuarios WHERE email = ?', [email]);
+    const usuario = linhas[0];
 
     if (!usuario) {
       return res.status(401).json({ erro: 'Credenciais inválidas' });
@@ -53,20 +53,20 @@ async function registrar(req, res) {
   }
 
   try {
-    const existente = await pool.query('SELECT id FROM usuarios WHERE email = $1', [email]);
+    const [existente] = await pool.query('SELECT id FROM usuarios WHERE email = ?', [email]);
 
-    if (existente.rows.length > 0) {
+    if (existente.length > 0) {
       return res.status(409).json({ erro: 'Já existe um usuário com este email' });
     }
 
     const senhaHash = await bcrypt.hash(senha, 10);
 
-    const resultado = await pool.query(
-      'INSERT INTO usuarios (nome, email, senha, papel) VALUES ($1, $2, $3, $4) RETURNING id, nome, email, papel',
+    const [resultado] = await pool.query(
+      'INSERT INTO usuarios (nome, email, senha, papel) VALUES (?, ?, ?, ?)',
       [nome, email, senhaHash, 'comum']
     );
 
-    return res.status(201).json(resultado.rows[0]);
+    return res.status(201).json({ id: resultado.insertId, nome, email, papel: 'comum' });
   } catch (erro) {
     console.error(erro);
     return res.status(500).json({ erro: 'Erro ao registrar usuário' });

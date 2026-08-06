@@ -2,8 +2,8 @@ const pool = require('../config/db');
 
 async function listar(req, res) {
   try {
-    const resultado = await pool.query('SELECT * FROM itens ORDER BY id');
-    return res.json(resultado.rows);
+    const [linhas] = await pool.query('SELECT * FROM itens ORDER BY id');
+    return res.json(linhas);
   } catch (erro) {
     console.error(erro);
     return res.status(500).json({ erro: 'Erro ao listar itens' });
@@ -14,13 +14,13 @@ async function buscarPorId(req, res) {
   const { id } = req.params;
 
   try {
-    const resultado = await pool.query('SELECT * FROM itens WHERE id = $1', [id]);
+    const [linhas] = await pool.query('SELECT * FROM itens WHERE id = ?', [id]);
 
-    if (resultado.rows.length === 0) {
+    if (linhas.length === 0) {
       return res.status(404).json({ erro: 'Item não encontrado' });
     }
 
-    return res.json(resultado.rows[0]);
+    return res.json(linhas[0]);
   } catch (erro) {
     console.error(erro);
     return res.status(500).json({ erro: 'Erro ao buscar item' });
@@ -35,11 +35,14 @@ async function criar(req, res) {
   }
 
   try {
-    const resultado = await pool.query(
-      'INSERT INTO itens (nome, descricao, quantidade) VALUES ($1, $2, $3) RETURNING *',
+    const [resultado] = await pool.query(
+      'INSERT INTO itens (nome, descricao, quantidade) VALUES (?, ?, ?)',
       [nome, descricao || null, quantidade || 0]
     );
-    return res.status(201).json(resultado.rows[0]);
+
+    const [linhas] = await pool.query('SELECT * FROM itens WHERE id = ?', [resultado.insertId]);
+
+    return res.status(201).json(linhas[0]);
   } catch (erro) {
     console.error(erro);
     return res.status(500).json({ erro: 'Erro ao criar item' });
@@ -55,16 +58,18 @@ async function atualizar(req, res) {
   }
 
   try {
-    const resultado = await pool.query(
-      'UPDATE itens SET nome = $1, descricao = $2, quantidade = $3, atualizado_em = NOW() WHERE id = $4 RETURNING *',
+    const [resultado] = await pool.query(
+      'UPDATE itens SET nome = ?, descricao = ?, quantidade = ? WHERE id = ?',
       [nome, descricao || null, quantidade || 0, id]
     );
 
-    if (resultado.rows.length === 0) {
+    if (resultado.affectedRows === 0) {
       return res.status(404).json({ erro: 'Item não encontrado' });
     }
 
-    return res.json(resultado.rows[0]);
+    const [linhas] = await pool.query('SELECT * FROM itens WHERE id = ?', [id]);
+
+    return res.json(linhas[0]);
   } catch (erro) {
     console.error(erro);
     return res.status(500).json({ erro: 'Erro ao atualizar item' });
@@ -75,9 +80,9 @@ async function excluir(req, res) {
   const { id } = req.params;
 
   try {
-    const resultado = await pool.query('DELETE FROM itens WHERE id = $1 RETURNING id', [id]);
+    const [resultado] = await pool.query('DELETE FROM itens WHERE id = ?', [id]);
 
-    if (resultado.rows.length === 0) {
+    if (resultado.affectedRows === 0) {
       return res.status(404).json({ erro: 'Item não encontrado' });
     }
 

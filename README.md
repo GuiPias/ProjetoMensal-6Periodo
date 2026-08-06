@@ -13,10 +13,10 @@ Além do estoque, cada usuário logado tem uma página de perfil onde pode consu
 
 ## Stack utilizada
 
-- **Backend**: Node.js + Express, com acesso direto ao PostgreSQL via biblioteca `pg` (sem ORM), para manter o SQL explícito e simples de entender.
+- **Backend**: Node.js + Express, com acesso direto ao MySQL via biblioteca `mysql2` (sem ORM), para manter o SQL explícito e simples de entender.
 - **Frontend**: React + Vite, por ser um setup leve e rápido para uma SPA pequena.
 - **Autenticação**: JWT (`jsonwebtoken`) para sessão sem estado no servidor, e `bcryptjs` para hash de senhas.
-- **Containerização**: Docker + docker-compose, permitindo subir banco, backend e frontend com um único comando, sem precisar instalar Postgres/Node localmente.
+- **Containerização**: Docker + docker-compose, permitindo subir banco, backend e frontend com um único comando, sem precisar instalar MySQL/Node localmente.
 
 ## Como rodar localmente com Docker
 
@@ -30,7 +30,7 @@ docker-compose up --build
 
 Isso vai subir três serviços:
 
-- **db**: PostgreSQL 16, com as tabelas e o usuário master inicial já criados automaticamente no primeiro start (via `backend/src/config/init.sql`).
+- **db**: MySQL 8.4, com as tabelas e o usuário master inicial já criados automaticamente no primeiro start (via `backend/src/config/init.sql`).
 - **backend**: API Express, disponível em `http://localhost:3001`.
 - **frontend**: interface React (servida via nginx), disponível em `http://localhost:5173`.
 

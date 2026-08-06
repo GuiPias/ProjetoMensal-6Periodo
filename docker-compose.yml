@@ -1,15 +1,14 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: mysql:8.4
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: estoque
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: estoque
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/mysql
       - ./backend/src/config/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "5432:5432"
+      - "3307:3306"
 
   backend:
     build: ./backend
@@ -18,9 +17,9 @@ services:
     environment:
       PORT: 3001
       DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root
       DB_NAME: estoque
       JWT_SECRET: troque_este_segredo_em_producao
     ports:
