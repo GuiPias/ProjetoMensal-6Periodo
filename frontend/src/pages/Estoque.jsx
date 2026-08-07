@@ -144,6 +144,7 @@ function Estoque() {
           onChange={(e) => setBusca(e.target.value)}
         />
 
+
         {formularioAberto && (
           <form className="card" onSubmit={salvarItem}>
             <h2>{itemEmEdicao ? 'Editar item' : 'Novo item'}</h2>
@@ -240,3 +241,9 @@ function Estoque() {
 }
 
 export default Estoque;
+
+
+
+
+
+
