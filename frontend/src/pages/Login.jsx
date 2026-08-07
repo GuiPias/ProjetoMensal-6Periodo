@@ -8,7 +8,6 @@ function Login() {
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
 
-
   async function aoEnviar(evento) {
     evento.preventDefault();
     setErro('');
@@ -22,7 +21,6 @@ function Login() {
       setErro(erroRequisicao.message);
     }
   }
- 
 
   return (
     <div className="pagina-login">
@@ -54,6 +52,3 @@ function Login() {
 }
 
 export default Login;
-
-
-
