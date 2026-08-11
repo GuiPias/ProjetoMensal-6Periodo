@@ -2,16 +2,19 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
 
+
 function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const navigate = useNavigate();
 
+
   async function aoEnviar(evento) {
     evento.preventDefault();
     setErro('');
 
+    
     try {
       const resposta = await login(email, senha);
       localStorage.setItem('token', resposta.token);
@@ -21,6 +24,7 @@ function Login() {
       setErro(erroRequisicao.message);
     }
   }
+
 
   return (
     <div className="pagina-login">
@@ -50,5 +54,8 @@ function Login() {
     </div>
   );
 }
-
 export default Login;
+
+
+
+

@@ -19,6 +19,7 @@ function Perfil() {
     }
   }
 
+
   useEffect(() => {
     carregarPerfil();
   }, []);
@@ -99,3 +100,7 @@ function Perfil() {
 }
 
 export default Perfil;
+
+
+
+
