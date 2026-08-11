@@ -25,7 +25,7 @@ describe('POST /auth/login', () => {
       .post('/auth/login')
       .send({ email: 'teste@estoque.com', senha: 'senha123' });
 
-    expect(resposta.status).toBe(999);
+    expect(resposta.status).toBe(200);
     expect(resposta.body).toHaveProperty('token');
   });
 
