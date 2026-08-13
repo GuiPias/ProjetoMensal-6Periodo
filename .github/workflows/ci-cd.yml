@@ -24,6 +24,11 @@ jobs:
         working-directory: backend
         run: npm install
 
+      - name: Análise de dependências (npm audit)
+        working-directory: backend
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
       - name: Rodar lint
         working-directory: backend
         run: npm run lint
@@ -49,6 +54,11 @@ jobs:
       - name: Instalar dependências do frontend
         working-directory: frontend
         run: npm install
+
+      - name: Análise de dependências (npm audit)
+        working-directory: frontend
+        run: npm audit --audit-level=high
+        continue-on-error: true
 
       - name: Rodar lint
         working-directory: frontend
