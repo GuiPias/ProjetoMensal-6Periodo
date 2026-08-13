@@ -84,3 +84,8 @@ jobs:
             cd ~/ProjetoMensal-6Periodo
             git pull
             docker compose up -d --build
+
+      - name: Validação pós-deploy (health check)
+        run: |
+          sleep 10
+          curl --fail --silent --show-error http://18.230.245.38:3001/health
