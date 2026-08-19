@@ -29,7 +29,7 @@ function Login() {
   return (
     <div className="pagina-login">
       <form className="card" onSubmit={aoEnviar}>
-        <h1>Sistema de Estoque</h1>
+        <h1>Sistema LALA</h1>
         {erro && <p className="mensagem-erro">{erro}</p>}
         <label>
           Email
